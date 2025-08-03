@@ -25,41 +25,26 @@ interface LeaderboardTableProps {
 
 // 💸 Prize mappings for all periods
 const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
-	weekly: {
-		1: 100,
-		2: 50,
-		3: 30,
-		4: 20,
-	},
-	biweekly: {
-		1: 100,
-		2: 50,
-		3: 30,
-		4: 20,
-	},
-	monthly: {
-		1: 100,
-		2: 50,
-		3: 30,
-		4: 20,
-	},
+	weekly: { 1: 100, 2: 50, 3: 30, 4: 20 },
+	biweekly: { 1: 100, 2: 50, 3: 30, 4: 20 },
+	monthly: { 1: 100, 2: 50, 3: 30, 4: 20 },
 };
 
 export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 	if (!data || data.length === 0) {
 		return (
-			<div className='text-center py-10 text-[#C33B52]'>
+			<div className='text-center py-10 text-[#38BDF8]'>
 				No leaderboard data available for {period}.
 			</div>
 		);
 	}
 
 	return (
-		<div className='overflow-hidden border rounded-lg border-[#FFFFFF]/30'>
+		<div className='overflow-hidden border rounded-lg border-[#FFFFFF]/20'>
 			<Table>
-				<TableHeader className='bg-[#191F3B]/90'>
+				<TableHeader className='bg-[#161A34]/90'>
 					<TableRow>
-						<TableHead className='w-12 text-center text-[#EA8105]'>
+						<TableHead className='w-12 text-center text-[#CF9F86]'>
 							Rank
 						</TableHead>
 						<TableHead className='text-[#FFFFFF]'>Player</TableHead>
@@ -74,18 +59,18 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 						return (
 							<TableRow
 								key={player.username}
-								className={player.isFeatured ? "bg-[#C33B52]/10" : ""}
+								className={player.isFeatured ? "bg-[#38BDF8]/10" : ""}
 							>
-								<TableCell className='font-medium text-center text-[#EA8105]'>
+								<TableCell className='font-medium text-center text-[#CF9F86]'>
 									{player.rank <= 3 ? (
 										<div className='flex items-center justify-center'>
 											<Crown
 												className={`h-4 w-4 ${
 													player.rank === 1
-														? "text-[#EA8105]"
+														? "text-[#38BDF8]"
 														: player.rank === 2
 														? "text-[#FFFFFF]/80"
-														: "text-[#C33B52]"
+														: "text-[#CF9F86]"
 												}`}
 											/>
 										</div>
@@ -98,7 +83,7 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 									{player.isFeatured && (
 										<Badge
 											variant='outline'
-											className='border-[#C33B52] text-[#C33B52]'
+											className='border-[#38BDF8] text-[#38BDF8]'
 										>
 											Streamer
 										</Badge>
@@ -107,7 +92,7 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 								<TableCell className='text-right text-[#FFFFFF]'>
 									${player.wager.toLocaleString()}
 								</TableCell>
-								<TableCell className='text-right text-[#AF2D03]'>
+								<TableCell className='text-right text-[#CF9F86]'>
 									{prize > 0 ? `$${prize}` : "-"}
 								</TableCell>
 							</TableRow>

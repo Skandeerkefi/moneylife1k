@@ -7,14 +7,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 export function Navbar() {
 	const location = useLocation();
-	const isMobile = useMediaQuery("(max-width: 768px)"); // Using tailwind's md breakpoint
+	const isMobile = useMediaQuery("(max-width: 768px)");
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLive, setIsLive] = useState(false);
 	const [viewerCount, setViewerCount] = useState<number | null>(null);
 
 	const { user, logout } = useAuthStore();
 
-	// Close mobile menu when navigating or when viewport changes
 	useEffect(() => {
 		setIsOpen(false);
 	}, [location, isMobile]);
@@ -22,7 +21,7 @@ export function Navbar() {
 	useEffect(() => {
 		const fetchLiveStatus = async () => {
 			try {
-				const res = await fetch("https://kick.com/api/v2/channels/pnpplxprss");
+				const res = await fetch("https://kick.com/api/v2/channels/MONEYLIFE1K");
 				const data = await res.json();
 
 				if (data.livestream) {
@@ -62,35 +61,32 @@ export function Navbar() {
 	];
 
 	return (
-		<nav className='sticky top-0 z-50 border-b border-[#EA8105]/40 backdrop-blur-md bg-[#191F3B]/95 text-white shadow-md'>
+		<nav className='sticky top-0 z-50 border-b border-[#CF9F86]/40 backdrop-blur-md bg-[#161A34]/95 text-white shadow-md'>
 			<div className='container flex items-center justify-between py-3 mx-auto'>
-				{/* Logo & Live status */}
 				<div className='flex items-center gap-3'>
 					<Link to='/' className='flex items-center gap-2'>
 						<img
-							src='https://i.ibb.co/DDn0q6D3/IMG-9430.webp'
-							alt='pnpplxprss Logo'
-							className='object-cover w-10 h-10 border rounded-full shadow-sm border-[#EA8105]/60'
+							src='https://files.kick.com/images/user/39074313/profile_image/conversion/56920648-3c8c-46b9-b833-bbd1f5fa2b18-fullsize.webp'
+							alt='MONEYLIFE1K Logo'
+							className='object-cover w-10 h-10 border rounded-full shadow-sm border-[#CF9F86]/60'
 						/>
-						<span className='text-2xl font-bold text-[#C33B52] select-none'>
-							PnpplXprss
+						<span className='text-2xl font-bold text-[#38BDF8] select-none'>
+							Moneylife1k
 						</span>
 					</Link>
 
 					{isLive ? (
-						<span className='ml-2 px-3 py-0.5 text-xs bg-[#AF2D03] text-white rounded-full font-semibold animate-pulse select-none'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-[#38BDF8] text-white rounded-full font-semibold animate-pulse select-none'>
 							🔴 LIVE {viewerCount !== null ? `(${viewerCount})` : ""}
 						</span>
 					) : (
-						<span className='ml-2 px-3 py-0.5 text-xs bg-[#C33B52] text-white rounded-full font-semibold select-none'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-[#CF9F86] text-white rounded-full font-semibold select-none'>
 							Offline
 						</span>
 					)}
 				</div>
 
-				{/* Desktop Navigation - Only show when NOT mobile */}
 				<div className={`${isMobile ? "hidden" : "flex items-center gap-6"}`}>
-					{/* Menu Links */}
 					<div className='flex items-center gap-3'>
 						{menuItems.map((item) => (
 							<Link
@@ -98,8 +94,8 @@ export function Navbar() {
 								to={item.path}
 								className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
 									location.pathname === item.path
-										? "bg-[#AF2D03] text-white shadow-md"
-										: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
+										? "bg-[#38BDF8] text-white shadow-md"
+										: "text-white hover:bg-[#CF9F86] hover:text-white"
 								}`}
 							>
 								{item.icon}
@@ -108,7 +104,6 @@ export function Navbar() {
 						))}
 					</div>
 
-					{/* Auth Buttons */}
 					<div className='flex items-center gap-3'>
 						{user ? (
 							<>
@@ -125,7 +120,7 @@ export function Navbar() {
 									variant='outline'
 									size='sm'
 									onClick={logout}
-									className='border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
+									className='border-white text-white hover:bg-[#38BDF8] hover:border-[#38BDF8]'
 								>
 									<LogOut className='w-4 h-4 mr-1' />
 									Logout
@@ -137,7 +132,7 @@ export function Navbar() {
 									variant='outline'
 									size='sm'
 									asChild
-									className='border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+									className='border-white text-white hover:bg-[#CF9F86] hover:border-[#CF9F86]'
 								>
 									<Link to='/login' className='flex items-center'>
 										<LogIn className='w-4 h-4 mr-1' />
@@ -147,7 +142,7 @@ export function Navbar() {
 								<Button
 									size='sm'
 									asChild
-									className='text-[#ffffff] hover:text-[#EA8105] font-semibold'
+									className='text-white hover:text-[#38BDF8] font-semibold'
 								>
 									<Link to='/signup'>Sign Up</Link>
 								</Button>
@@ -156,10 +151,9 @@ export function Navbar() {
 					</div>
 				</div>
 
-				{/* Mobile Nav Toggle - Only show when mobile */}
 				{isMobile && (
 					<button
-						className='p-2 rounded-md hover:bg-[#EA8105]/30 focus:outline-none focus:ring-2 focus:ring-[#EA8105]'
+						className='p-2 rounded-md hover:bg-[#CF9F86]/30 focus:outline-none focus:ring-2 focus:ring-[#CF9F86]'
 						onClick={() => setIsOpen(!isOpen)}
 						aria-label='Toggle menu'
 						aria-expanded={isOpen}
@@ -185,12 +179,11 @@ export function Navbar() {
 				)}
 			</div>
 
-			{/* Mobile Menu - Only show when mobile and open */}
 			{isMobile && (
 				<div
 					className={`container mx-auto overflow-hidden transition-all duration-300 ease-in-out ${
 						isOpen
-							? "max-h-screen py-3 border-t border-[#EA8105]/40"
+							? "max-h-screen py-3 border-t border-[#CF9F86]/40"
 							: "max-h-0"
 					}`}
 				>
@@ -202,8 +195,8 @@ export function Navbar() {
 								onClick={() => setIsOpen(false)}
 								className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
 									location.pathname === item.path
-										? "bg-[#AF2D03] text-white"
-										: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
+										? "bg-[#38BDF8] text-white"
+										: "text-white hover:bg-[#CF9F86] hover:text-white"
 								}`}
 							>
 								{item.icon}
@@ -227,7 +220,7 @@ export function Navbar() {
 									<Button
 										variant='outline'
 										size='sm'
-										className='w-full border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
+										className='w-full border-white text-white hover:bg-[#38BDF8] hover:border-[#38BDF8]'
 										onClick={() => {
 											logout();
 											setIsOpen(false);
@@ -242,7 +235,7 @@ export function Navbar() {
 									<Button
 										variant='outline'
 										size='sm'
-										className='w-full border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+										className='w-full border-white text-white hover:bg-[#CF9F86] hover:border-[#CF9F86]'
 										asChild
 									>
 										<Link
@@ -256,7 +249,7 @@ export function Navbar() {
 									</Button>
 									<Button
 										size='sm'
-										className='w-full text-[#ffffff] hover:text-[#EA8105] font-semibold'
+										className='w-full text-white hover:text-[#38BDF8] font-semibold'
 										asChild
 									>
 										<Link to='/signup' onClick={() => setIsOpen(false)}>
