@@ -14,7 +14,7 @@ export default function SlotOverlay() {
 					"https://moneylife1kdata.onrender.com/api/slot-calls",
 					{
 						headers: {
-							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGJkMTg2MjQyNGJjNjllZGJmZGM4YSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InNrYW5kZXIiLCJpYXQiOjE3NTQyMTkzMzMsImV4cCI6MTc1NDgyNDEzM30.CA8_sJmY-W8uUEQ_-m3GRoo_CWFRWaPYtjoK5oy5jjI`,
+							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGJkMTg2MjQyNGJjNjllZGJmZGM4YSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InNrYW5kZXIiLCJpYXQiOjE3NTQyMTk1MjcsImV4cCI6MTc1NDgyNDMyN30.Obp3v8gjiCKLWHuOhVX4ncEjga1fzj-67HIBhWDvt2k`,
 						},
 					}
 				);
