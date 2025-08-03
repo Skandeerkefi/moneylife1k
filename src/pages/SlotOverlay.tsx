@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { useSlotCallStore } from "@/store/useSlotCallStore";
 
 export default function SlotOverlay() {
-	const { fetchSlotCalls, slotCalls } = useSlotCallStore();
 	const [visibleCalls, setVisibleCalls] = useState<any[]>([]);
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const scrollInterval = useRef<NodeJS.Timeout | null>(null);
 
+	// Fetch slot calls every 15 seconds
 	useEffect(() => {
 		const fetchOverlayCalls = async () => {
 			try {
@@ -14,7 +13,8 @@ export default function SlotOverlay() {
 					"https://moneylife1kdata.onrender.com/api/slot-calls",
 					{
 						headers: {
-							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGJkMTg2MjQyNGJjNjllZGJmZGM4YSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InNrYW5kZXIiLCJpYXQiOjE3NTQyMTk1MjcsImV4cCI6MTc1NDgyNDMyN30.Obp3v8gjiCKLWHuOhVX4ncEjga1fzj-67HIBhWDvt2k`,
+							Authorization:
+								"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGJkMTg2MjQyNGJjNjllZGJmZGM4YSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InNrYW5kZXIiLCJpYXQiOjE3NTQyMTk1MjcsImV4cCI6MTc1NDgyNDMyN30.Obp3v8gjiCKLWHuOhVX4ncEjga1fzj-67HIBhWDvt2k",
 						},
 					}
 				);
@@ -45,29 +45,33 @@ export default function SlotOverlay() {
 		return () => clearInterval(interval);
 	}, []);
 
-	// Scroll logic
+	// Scroll logic using scrollTop
 	useEffect(() => {
 		if (!scrollRef.current || visibleCalls.length <= 3) return;
 
 		const container = scrollRef.current;
 		let scrollPos = 0;
-		const itemHeight = container.firstElementChild?.clientHeight || 0;
+		const itemHeight = container.firstElementChild?.clientHeight || 80; // fallback 80px
 		const totalHeight = itemHeight * visibleCalls.length;
+
+		// Reset scroll to top on calls change
+		container.scrollTop = 0;
 
 		scrollInterval.current && clearInterval(scrollInterval.current);
 
 		scrollInterval.current = setInterval(() => {
 			scrollPos += 1;
 			if (scrollPos >= totalHeight) scrollPos = 0;
-			container.style.transform = `translateY(-${scrollPos}px)`;
+			container.scrollTop = scrollPos;
 		}, 20);
 
 		return () => {
 			scrollInterval.current && clearInterval(scrollInterval.current);
-			if (container) container.style.transform = "translateY(0)";
+			if (container) container.scrollTop = 0;
 		};
 	}, [visibleCalls]);
 
+	// Duplicate calls for seamless scroll looping
 	const doubledCalls = [...visibleCalls, ...visibleCalls];
 
 	return (
@@ -82,17 +86,17 @@ export default function SlotOverlay() {
 				</div>
 
 				{/* SCROLLING CONTENT */}
-				<div style={{ height: "240px" }} className='overflow-hidden'>
-					<div
-						ref={scrollRef}
-						className='flex flex-col'
-						style={{ willChange: "transform" }}
-					>
+				<div
+					style={{ height: "240px" }}
+					className='overflow-hidden'
+					ref={scrollRef}
+				>
+					<div className='flex flex-col'>
 						{doubledCalls.map((call, index) => (
 							<div
 								key={`${call.id}-${index}`}
 								className='flex flex-col px-6 py-4 border-b border-[#EA6D0C]/30 last:border-none'
-								style={{ height: "80px" }}
+								style={{ height: "80px", boxSizing: "border-box" }}
 							>
 								<div className='text-xl font-extrabold text-white drop-shadow-md'>
 									🎰 <span className='text-[#38BDF8]'>@{call.requester}</span>{" "}
