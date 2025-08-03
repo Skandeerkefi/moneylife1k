@@ -7,33 +7,33 @@ import { Link } from "react-router-dom";
 import { Dices, Crown, Gift, Users, ArrowRight } from "lucide-react";
 import {
 	useLeaderboardStore,
-	getCurrentBiweeklyRange,
+	getCurrentMonthlyRange,
 } from "@/store/useLeaderboardStore";
-import { useSlotCallStore } from "@/store/useSlotCallStore";
-import { useGiveawayStore } from "@/store/useGiveawayStore";
+// import { useSlotCallStore } from "@/store/useSlotCallStore";
+// import { useGiveawayStore } from "@/store/useGiveawayStore";
 
 function HomePage() {
-	const { slotCalls } = useSlotCallStore();
-	const { giveaways } = useGiveawayStore();
-	const { biweeklyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
+	// const { slotCalls } = useSlotCallStore();
+	// const { giveaways } = useGiveawayStore();
+	const { monthlyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
 
-	const topLeaderboard = Array.isArray(biweeklyLeaderboard)
-		? biweeklyLeaderboard.slice(0, 5)
+	const topLeaderboard = Array.isArray(monthlyLeaderboard)
+		? monthlyLeaderboard.slice(0, 5)
 		: [];
 
 	useEffect(() => {
-		if (biweeklyLeaderboard.length === 0) {
-			fetchLeaderboard("biweekly");
+		if (monthlyLeaderboard.length === 0) {
+			fetchLeaderboard();
 		}
 	}, []);
 
-	const { end_at } = getCurrentBiweeklyRange();
+	const { end_at } = getCurrentMonthlyRange();
 	const [timeLeft, setTimeLeft] = useState("");
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const now = new Date();
-			const end = new Date(end_at);
+			const end = new Date(end_at + "T23:59:59");
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
@@ -141,7 +141,7 @@ function HomePage() {
 						<div className='flex items-center gap-2'>
 							<Crown className='w-6 h-6 text-[#38BDF8]' />
 							<h2 className='text-2xl font-bold text-[#38BDF8]'>
-								Biweekly Leaderboard
+								Monthly Leaderboard
 							</h2>
 						</div>
 						<Button
@@ -156,7 +156,7 @@ function HomePage() {
 						</Button>
 					</div>
 
-					<LeaderboardTable period='biweekly' data={topLeaderboard} />
+					<LeaderboardTable period='monthly' data={topLeaderboard} />
 				</section>
 
 				{/* Features */}

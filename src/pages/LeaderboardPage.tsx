@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+// LeaderboardPage.tsx
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import {
 	useLeaderboardStore,
-	LeaderboardPeriod,
-	getCurrentBiweeklyRange,
-	LeaderboardPlayer,
+	getCurrentMonthlyRange,
 } from "@/store/useLeaderboardStore";
-import { Crown, Info, Loader2, Trophy, Award, Medal } from "lucide-react";
+import { Trophy, Info, Loader2, Award, Medal, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -19,36 +18,32 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function LeaderboardPage() {
-	const { biweeklyLeaderboard, fetchLeaderboard, isLoading, error } =
+	const { monthlyLeaderboard, fetchLeaderboard, isLoading, error } =
 		useLeaderboardStore();
 
 	useEffect(() => {
-		fetchLeaderboard("biweekly");
+		fetchLeaderboard();
 	}, [fetchLeaderboard]);
 
-	const { start_at, end_at } = getCurrentBiweeklyRange();
+	const { start_at, end_at } = getCurrentMonthlyRange();
 	const [timeLeft, setTimeLeft] = useState<string>("");
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const endDate = new Date(end_at);
+			const endDate = new Date(end_at + "T23:59:59");
 			const now = new Date();
 			const diff = endDate.getTime() - now.getTime();
-
 			if (diff <= 0) {
 				setTimeLeft("Leaderboard period has ended.");
 				clearInterval(interval);
 				return;
 			}
-
 			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 			const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
 			const minutes = Math.floor((diff / (1000 * 60)) % 60);
 			const seconds = Math.floor((diff / 1000) % 60);
-
 			setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s remaining`);
 		}, 1000);
-
 		return () => clearInterval(interval);
 	}, [end_at]);
 
@@ -57,12 +52,12 @@ function LeaderboardPage() {
 			<Navbar />
 
 			<main className='container flex-grow py-8'>
+				{/* Title & Tooltip */}
 				<div className='flex items-center justify-between mb-8'>
 					<div className='flex items-center gap-2'>
 						<Crown className='w-6 h-6 text-[#38BDF8]' />
 						<h1 className='text-3xl font-bold'>Rainbet Leaderboard</h1>
 					</div>
-
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -71,17 +66,17 @@ function LeaderboardPage() {
 									<span>How It Works</span>
 								</div>
 							</TooltipTrigger>
-							<TooltipContent className='max-w-xs bg-[#161A34] text-white border border-[#38BDF8] shadow-lg'>
+							<TooltipContent className='bg-[#161A34] text-white border border-[#38BDF8]'>
 								<p>
 									The leaderboard ranks players based on their total wager
-									amount using the MONEYLIFE affiliate code on Rainbet. Higher
-									wagers result in a better ranking.
+									amount using the MONEYLIFE affiliate code on Rainbet.
 								</p>
 							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 				</div>
 
+				{/* Info & Code */}
 				<div className='p-6 mb-8 rounded-lg bg-[#1E2547] border border-[#38BDF8]/30'>
 					<p className='mb-4 text-[#CF9F86]'>
 						Use affiliate code{" "}
@@ -94,14 +89,11 @@ function LeaderboardPage() {
 						>
 							Rainbet
 						</a>
-						to appear on this leaderboard and compete for rewards!
+						to appear on this leaderboard!
 					</p>
-
-					<div className='flex items-center gap-4'>
-						<div className='px-3 py-1.5 rounded-md bg-[#38BDF8]/10 flex items-center'>
-							<span className='text-[#CF9F86]'>Affiliate Code:</span>
-							<span className='ml-2 font-bold text-[#38BDF8]'>MONEYLIFE1K</span>
-						</div>
+					<div className='px-3 py-1.5 rounded-md bg-[#38BDF8]/10 inline-block'>
+						<span className='text-[#CF9F86]'>Affiliate Code:</span>
+						<span className='ml-2 font-bold text-[#38BDF8]'>MONEYLIFE1K</span>
 					</div>
 				</div>
 
@@ -116,84 +108,57 @@ function LeaderboardPage() {
 					</Alert>
 				)}
 
-				{/* Reward Cards */}
+				{/* Rewards */}
 				<div className='mb-8'>
-					<h2 className='mb-6 text-2xl font-bold text-center text-white'>
-						Top Players
-					</h2>
+					<h2 className='mb-6 text-2xl font-bold text-center'>Top Players</h2>
 					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-						{biweeklyLeaderboard.length > 0 ? (
+						{monthlyLeaderboard.length > 0 ? (
 							<>
 								<RewardCard
 									position='2nd Place'
-									reward='$250 Cash + Special Role'
+									reward='$250 Cash + Role'
 									backgroundColor='from-slate-300 to-slate-400'
-									player={biweeklyLeaderboard[1]}
-									icon={<Award className='w-8 h-8 text-slate-300' />}
+									player={monthlyLeaderboard[1]}
+									icon={<Award className='w-8 h-8' />}
 								/>
 								<RewardCard
 									position='1st Place'
-									reward='$500 Cash + Special Role'
+									reward='$500 Cash + Role'
 									backgroundColor='from-yellow-400 to-amber-600'
-									player={biweeklyLeaderboard[0]}
-									icon={<Trophy className='w-8 h-8 text-yellow-400' />}
+									player={monthlyLeaderboard[0]}
+									icon={<Trophy className='w-8 h-8' />}
 								/>
 								<RewardCard
 									position='3rd Place'
-									reward='$100 Cash + Special Role'
+									reward='$100 Cash + Role'
 									backgroundColor='from-amber-700 to-amber-800'
-									player={biweeklyLeaderboard[2]}
-									icon={<Medal className='w-8 h-8 text-amber-600' />}
+									player={monthlyLeaderboard[2]}
+									icon={<Medal className='w-8 h-8' />}
 								/>
 							</>
 						) : (
-							<>
-								<RewardCard
-									position='1st Place'
-									reward='$500 Cash + Special Role'
-									backgroundColor='from-yellow-400 to-amber-600'
-									icon={<Trophy className='w-8 h-8 text-yellow-400' />}
-								/>
-								<RewardCard
-									position='2nd Place'
-									reward='$250 Cash + Special Role'
-									backgroundColor='from-slate-300 to-slate-400'
-									icon={<Award className='w-8 h-8 text-slate-300' />}
-								/>
-								<RewardCard
-									position='3rd Place'
-									reward='$100 Cash + Special Role'
-									backgroundColor='from-amber-700 to-amber-800'
-									icon={<Medal className='w-8 h-8 text-amber-600' />}
-								/>
-							</>
+							<></>
 						)}
 					</div>
 				</div>
 
-				{/* Leaderboard Table */}
-				<div>
-					<div className='flex flex-col items-center justify-center mb-4'>
-						<h2 className='text-xl font-semibold text-center text-white border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
-							Biweekly Leaderboard
-						</h2>
-						<p className='mt-2 text-sm text-[#CF9F86]'>
-							Period: {start_at} → {end_at}
-						</p>
-						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
-					</div>
-					{isLoading ? (
-						<div className='flex items-center justify-center h-64'>
-							<Loader2 className='w-8 h-8 animate-spin text-[#38BDF8]' />
-						</div>
-					) : (
-						<LeaderboardTable
-							period='biweekly'
-							data={biweeklyLeaderboard}
-							isLoading={isLoading}
-						/>
-					)}
+				{/* Table */}
+				<div className='mb-6 text-center'>
+					<h2 className='text-xl font-semibold border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
+						Monthly Leaderboard
+					</h2>
+					<p className='mt-2 text-sm text-[#CF9F86]'>
+						Period: {start_at} → {end_at}
+					</p>
+					<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
 				</div>
+				{isLoading ? (
+					<div className='flex items-center justify-center h-64'>
+						<Loader2 className='w-8 h-8 animate-spin text-[#38BDF8]' />
+					</div>
+				) : (
+					<LeaderboardTable period='monthly' data={monthlyLeaderboard} />
+				)}
 			</main>
 
 			<Footer />
@@ -217,12 +182,11 @@ function RewardCard({
 	icon,
 }: RewardCardProps) {
 	return (
-		<div className='flex flex-col h-full overflow-hidden rounded-xl bg-[#1E2547] border border-[#38BDF8]/30 shadow-sm'>
+		<div className='flex flex-col h-full overflow-hidden rounded-xl bg-[#1E2547] border border-[#38BDF8]/30'>
 			<div className={`h-2 bg-gradient-to-r ${backgroundColor}`} />
-			<div className='flex flex-col items-center flex-grow p-6 text-center text-white'>
-				<div className='mb-4'>{icon}</div>
+			<div className='flex flex-col items-center flex-grow p-6 text-white'>
+				{icon && <div className='mb-4'>{icon}</div>}
 				<h3 className='mb-2 text-xl font-bold'>{position}</h3>
-
 				{player ? (
 					<>
 						<p className='font-medium'>{player.username}</p>
