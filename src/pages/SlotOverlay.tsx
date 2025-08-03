@@ -70,32 +70,30 @@ export default function SlotOverlay() {
 
 	return (
 		<div
-			className='fixed max-w-full -translate-x-1/2 pointer-events-none select-none bottom-10 left-1/2 w-96'
-			style={{ userSelect: "none", zIndex: 9999 }}
+			className='fixed max-w-full -translate-x-1/2 bottom-10 left-1/2 w-[26rem] pointer-events-none select-none'
+			style={{ zIndex: 9999 }}
 		>
 			<div
-				className='overflow-hidden border-4 shadow-xl rounded-3xl'
+				className='overflow-hidden border shadow-2xl rounded-3xl'
 				style={{
-					borderColor: "#EA6D0C",
-					backgroundColor: "rgba(25, 31, 59, 0.85)", // #191F3B with opacity
-					backdropFilter: "blur(8px)",
+					backgroundColor: "#2C2F48",
+					borderColor: "#8F00FF",
+					backdropFilter: "blur(10px)",
 				}}
 			>
-				{/* TITLE */}
+				{/* Header */}
 				<div
-					className='py-3 font-extrabold tracking-widest text-center rounded-t-3xl'
+					className='py-3 text-lg font-bold tracking-wide text-center text-white rounded-t-3xl'
 					style={{
-						backgroundColor: "#AF2D03",
-						color: "#FFFFFF",
-						borderBottom: "2px solid #EA6D0C",
-						textShadow: "0 0 6px #EA6D0C",
-						userSelect: "none",
+						background: "linear-gradient(90deg, #8F00FF, #00F0FF)",
+						color: "#fff",
+						textShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
 					}}
 				>
-					🎰 SLOT CALLS
+					🎰 LIVE SLOT CALLS
 				</div>
 
-				{/* SCROLLING CONTENT */}
+				{/* Scrolling Area */}
 				<div
 					ref={scrollRef}
 					className='overflow-hidden'
@@ -105,40 +103,34 @@ export default function SlotOverlay() {
 						{doubledCalls.map((call, index) => (
 							<div
 								key={`${call.id}-${index}`}
-								className='flex flex-col justify-center px-6 py-3 border-b last:border-none'
+								className='flex flex-col justify-center px-5 py-4 border-b last:border-none'
 								style={{
-									borderColor: "rgba(234, 109, 12, 0.3)",
 									height: 80,
-									boxSizing: "border-box",
+									borderColor: "rgba(255, 255, 255, 0.1)",
 								}}
 							>
-								<div
-									className='font-extrabold text-white drop-shadow-md'
-									style={{ fontSize: "1.15rem" }}
-								>
-									🎰 <span style={{ color: "#38BDF8" }}>@{call.requester}</span>{" "}
+								<div className='text-white text-[1.1rem] font-semibold'>
+									🎰 <span style={{ color: "#00F0FF" }}>@{call.requester}</span>{" "}
 									called{" "}
-									<span style={{ color: "#EA6D0C" }}>{call.slotName}</span>
+									<span style={{ color: "#8F00FF" }}>{call.slotName}</span>
 								</div>
-								<div
-									className='flex items-center gap-2 mt-1 font-semibold'
-									style={{ color: "#FFFFFFCC" }}
-								>
+								<div className='text-[#CCCCCC] text-sm mt-1 flex items-center gap-3'>
 									{call.betAmount !== null && (
 										<span>
 											for{" "}
-											<span style={{ color: "#AF2D03" }}>
+											<span style={{ color: "#00F0FF" }}>
 												${call.betAmount.toLocaleString()}
 											</span>
 										</span>
 									)}
 									{call.x250Hit && (
 										<span
-											className='ml-auto text-xs font-bold rounded-full select-none'
+											className='ml-auto text-xs font-bold rounded-full'
 											style={{
-												backgroundColor: "#38BDF8",
-												color: "#191F3B",
-												padding: "0.15em 0.5em",
+												backgroundColor: "#8F00FF",
+												color: "#fff",
+												padding: "0.2em 0.6em",
+												boxShadow: "0 0 6px #8F00FF",
 											}}
 										>
 											💥 250x HIT!
@@ -147,8 +139,8 @@ export default function SlotOverlay() {
 								</div>
 								{call.bonusCallName && (
 									<div
-										className='mt-1 italic font-medium drop-shadow-md'
-										style={{ color: "#38BDF8" }}
+										className='mt-1 text-sm italic'
+										style={{ color: "#00F0FF" }}
 									>
 										Bonus Call:{" "}
 										<span className='font-bold'>{call.bonusCallName}</span>
