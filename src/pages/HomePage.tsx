@@ -5,35 +5,37 @@ import { Button } from "@/components/ui/button";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { Link } from "react-router-dom";
 import { Dices, Crown, Gift, Users, ArrowRight } from "lucide-react";
-import {
-	useLeaderboardStore,
-	getCurrentBiweeklyRange,
-} from "@/store/useLeaderboardStore";
+import { useLeaderboardStore } from "@/store/useLeaderboardStore";
 import { useSlotCallStore } from "@/store/useSlotCallStore";
 import { useGiveawayStore } from "@/store/useGiveawayStore";
 
 function HomePage() {
 	const { slotCalls } = useSlotCallStore();
 	const { giveaways } = useGiveawayStore();
-	const { biweeklyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
+	const { monthlyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
 
-	const topLeaderboard = Array.isArray(biweeklyLeaderboard)
-		? biweeklyLeaderboard.slice(0, 5)
+	const topLeaderboard = Array.isArray(monthlyLeaderboard)
+		? monthlyLeaderboard.slice(0, 5)
 		: [];
 
+	// Calculate current month end date string for countdown
+	const now = new Date();
+	const monthEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+	monthEndDate.setHours(23, 59, 59, 999);
+	const monthEndISO = monthEndDate.toISOString();
+
 	useEffect(() => {
-		if (biweeklyLeaderboard.length === 0) {
-			fetchLeaderboard("biweekly");
+		if (monthlyLeaderboard.length === 0) {
+			fetchLeaderboard();
 		}
 	}, []);
 
-	const { end_at } = getCurrentBiweeklyRange();
 	const [timeLeft, setTimeLeft] = useState("");
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const now = new Date();
-			const end = new Date(end_at);
+			const end = new Date(monthEndISO);
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
@@ -57,7 +59,7 @@ function HomePage() {
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [end_at]);
+	}, [monthEndISO]);
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#161A34] text-white'>
@@ -141,7 +143,7 @@ function HomePage() {
 						<div className='flex items-center gap-2'>
 							<Crown className='w-6 h-6 text-[#38BDF8]' />
 							<h2 className='text-2xl font-bold text-[#38BDF8]'>
-								Biweekly Leaderboard
+								Monthly Leaderboard
 							</h2>
 						</div>
 						<Button
@@ -156,7 +158,7 @@ function HomePage() {
 						</Button>
 					</div>
 
-					<LeaderboardTable period='biweekly' data={topLeaderboard} />
+					<LeaderboardTable period='monthly' data={topLeaderboard} />
 				</section>
 
 				{/* Features */}
