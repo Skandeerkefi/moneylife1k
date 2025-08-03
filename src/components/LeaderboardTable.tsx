@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Crown } from "lucide-react";
 
-type LeaderboardPeriod = "weekly" | "biweekly" | "monthly";
+type LeaderboardPeriod = "monthly";
 
 interface LeaderboardPlayer {
 	rank: number;
@@ -23,11 +23,9 @@ interface LeaderboardTableProps {
 	data: LeaderboardPlayer[] | undefined;
 }
 
-// 💸 Prize mappings for all periods
+// Prize mapping for monthly leaderboard (adjust as needed)
 const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
-	weekly: { 1: 100, 2: 50, 3: 30, 4: 20 },
-	biweekly: { 1: 100, 2: 50, 3: 30, 4: 20 },
-	monthly: { 1: 100, 2: 50, 3: 30, 4: 20 },
+	monthly: { 1: 500, 2: 250, 3: 100, 4: 50 },
 };
 
 export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
