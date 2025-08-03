@@ -23,18 +23,21 @@ export default function SlotOverlay() {
 
 				const data = await res.json();
 
-				const accepted = data
-					.filter((call: any) => call.status === "accepted")
-					.map((call: any) => ({
-						id: call._id,
-						slotName: call.name,
-						requester: call.user?.kickUsername || "Unknown",
-						betAmount: call.betAmount ?? null,
-						x250Hit: call.x250Hit ?? false,
-						bonusCallName: call.bonusCall?.name ?? null,
-					}));
+				console.log("Raw fetched data:", data);
 
-				setVisibleCalls(accepted);
+				// NO filter on status here to test visibility
+				const mappedCalls = data.map((call: any) => ({
+					id: call._id,
+					slotName: call.name,
+					requester: call.user?.kickUsername || "Unknown",
+					betAmount: call.betAmount ?? null,
+					x250Hit: call.x250Hit ?? false,
+					bonusCallName: call.bonusCall?.name ?? null,
+				}));
+
+				console.log("Mapped calls:", mappedCalls);
+
+				setVisibleCalls(mappedCalls);
 			} catch (err) {
 				console.error("Overlay fetch failed:", err);
 			}
@@ -54,7 +57,6 @@ export default function SlotOverlay() {
 		const itemHeight = container.firstElementChild?.clientHeight || 80; // fallback 80px
 		const totalHeight = itemHeight * visibleCalls.length;
 
-		// Reset scroll to top on calls change
 		container.scrollTop = 0;
 
 		scrollInterval.current && clearInterval(scrollInterval.current);
