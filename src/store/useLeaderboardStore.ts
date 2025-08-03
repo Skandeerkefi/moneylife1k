@@ -1,7 +1,6 @@
-// useLeaderboardStore.ts
 import { create } from "zustand";
 
-export type LeaderboardPeriod = "monthly";
+export type LeaderboardPeriod = "weekly" | "biweekly" | "monthly";
 
 export interface LeaderboardPlayer {
 	rank: number;
@@ -11,18 +10,56 @@ export interface LeaderboardPlayer {
 }
 
 interface LeaderboardState {
+	weeklyLeaderboard: LeaderboardPlayer[];
+	biweeklyLeaderboard: LeaderboardPlayer[];
 	monthlyLeaderboard: LeaderboardPlayer[];
+	period: LeaderboardPeriod;
 	isLoading: boolean;
 	error: string | null;
-	fetchLeaderboard: () => Promise<void>;
+	setPeriod: (period: LeaderboardPeriod) => void;
+	fetchLeaderboard: (period: LeaderboardPeriod) => Promise<void>;
 }
 
 const API_URL = "https://moneylife1kdata.onrender.com/api/affiliates";
 
-const getDateRange = (): { start_at: string; end_at: string } => {
+const getDateRange = (
+	period: LeaderboardPeriod
+): { start_at: string; end_at: string } => {
 	const now = new Date();
-	const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-	const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+	if (period === "biweekly") {
+		const firstStart = new Date("2025-07-20T00:00:00Z");
+		const msInDay = 1000 * 60 * 60 * 24;
+		const daysSinceStart = Math.floor(
+			(now.getTime() - firstStart.getTime()) / msInDay
+		);
+		const currentCycle = Math.floor(daysSinceStart / 14);
+
+		const startDate = new Date(firstStart);
+		startDate.setDate(firstStart.getDate() + currentCycle * 14);
+
+		const endDate = new Date(startDate);
+		endDate.setDate(startDate.getDate() + 13);
+
+		return {
+			start_at: startDate.toISOString().split("T")[0],
+			end_at: endDate.toISOString().split("T")[0],
+		};
+	}
+
+	if (period === "monthly") {
+		const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+		const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+		return {
+			start_at: startDate.toISOString().split("T")[0],
+			end_at: endDate.toISOString().split("T")[0],
+		};
+	}
+
+	const endDate = new Date(now);
+	const startDate = new Date(now);
+	startDate.setDate(now.getDate() - 7);
+	startDate.setHours(0, 0, 0, 0);
 
 	return {
 		start_at: startDate.toISOString().split("T")[0],
@@ -31,7 +68,10 @@ const getDateRange = (): { start_at: string; end_at: string } => {
 };
 
 const processApiData = (data: any): LeaderboardPlayer[] => {
-	if (!data?.affiliates || !Array.isArray(data.affiliates)) return [];
+	if (!data?.affiliates || !Array.isArray(data.affiliates)) {
+		console.error("Invalid API response structure");
+		return [];
+	}
 
 	return data.affiliates
 		.filter((item: any) => item && item.username)
@@ -45,25 +85,37 @@ const processApiData = (data: any): LeaderboardPlayer[] => {
 		.map((player, idx) => ({ ...player, rank: idx + 1 }));
 };
 
-export const useLeaderboardStore = create<LeaderboardState>((set) => ({
+export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
+	weeklyLeaderboard: [],
+	biweeklyLeaderboard: [],
 	monthlyLeaderboard: [],
+	period: "biweekly",
 	isLoading: false,
 	error: null,
-	fetchLeaderboard: async () => {
+	setPeriod: (period) => set({ period }),
+	fetchLeaderboard: async (period) => {
 		set({ isLoading: true, error: null });
 
 		try {
-			const { start_at, end_at } = getDateRange();
+			const { start_at, end_at } = getDateRange(period);
 			const response = await fetch(
 				`${API_URL}?start_at=${start_at}&end_at=${end_at}`
 			);
-			if (!response.ok) throw new Error(`Failed: ${response.status}`);
+			if (!response.ok) throw new Error("API request failed");
+
 			const data = await response.json();
-			const processed = processApiData(data);
-			set({ monthlyLeaderboard: processed });
-		} catch (err) {
+			const processedData = processApiData(data);
+
+			if (period === "weekly") {
+				set({ weeklyLeaderboard: processedData });
+			} else if (period === "biweekly") {
+				set({ biweeklyLeaderboard: processedData });
+			} else if (period === "monthly") {
+				set({ monthlyLeaderboard: processedData });
+			}
+		} catch (error: any) {
 			set({
-				error: err instanceof Error ? err.message : "Unknown error",
+				error: error?.message || "Unknown error",
 			});
 		} finally {
 			set({ isLoading: false });
@@ -71,15 +123,39 @@ export const useLeaderboardStore = create<LeaderboardState>((set) => ({
 	},
 }));
 
+export const getCurrentBiweeklyRange = (): {
+	start_at: string;
+	end_at: string;
+} => {
+	const now = new Date();
+	const firstStart = new Date("2025-07-20T00:00:00Z");
+	const msInDay = 1000 * 60 * 60 * 24;
+	const daysSinceStart = Math.floor(
+		(now.getTime() - firstStart.getTime()) / msInDay
+	);
+	const currentCycle = Math.floor(daysSinceStart / 14);
+
+	const startDate = new Date(firstStart);
+	startDate.setDate(firstStart.getDate() + currentCycle * 14);
+
+	const endDate = new Date(startDate);
+	endDate.setDate(startDate.getDate() + 13);
+
+	return {
+		start_at: startDate.toISOString().split("T")[0],
+		end_at: endDate.toISOString().split("T")[0],
+	};
+};
+
 export const getCurrentMonthlyRange = (): {
 	start_at: string;
 	end_at: string;
 } => {
 	const now = new Date();
-	const start = new Date(now.getFullYear(), now.getMonth(), 1);
-	const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+	const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+	const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 	return {
-		start_at: start.toISOString().split("T")[0],
-		end_at: end.toISOString().split("T")[0],
+		start_at: startDate.toISOString().split("T")[0],
+		end_at: endDate.toISOString().split("T")[0],
 	};
 };

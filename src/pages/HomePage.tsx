@@ -12,7 +12,7 @@ import {
 // import { useSlotCallStore } from "@/store/useSlotCallStore";
 // import { useGiveawayStore } from "@/store/useGiveawayStore";
 
-function HomePage() {
+function HomePage() {	
 	// const { slotCalls } = useSlotCallStore();
 	// const { giveaways } = useGiveawayStore();
 	const { monthlyLeaderboard, fetchLeaderboard } = useLeaderboardStore();

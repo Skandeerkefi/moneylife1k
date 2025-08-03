@@ -1,161 +1,236 @@
 import { create } from "zustand";
+import { useAuthStore } from "./useAuthStore";
 
-export type LeaderboardPeriod = "weekly" | "biweekly" | "monthly";
+export type SlotCallStatus = "pending" | "accepted" | "rejected" | "played";
 
-export interface LeaderboardPlayer {
-	rank: number;
-	username: string;
-	wager: number;
-	isFeatured?: boolean;
+export interface SlotCall {
+	id: string;
+	slotName: string;
+	requester: string;
+	timestamp: string;
+	status: SlotCallStatus;
+	x250Hit?: boolean;
+	bonusCall?: { name: string; createdAt: string };
 }
 
-interface LeaderboardState {
-	weeklyLeaderboard: LeaderboardPlayer[];
-	biweeklyLeaderboard: LeaderboardPlayer[];
-	monthlyLeaderboard: LeaderboardPlayer[];
-	period: LeaderboardPeriod;
-	isLoading: boolean;
-	error: string | null;
-	setPeriod: (period: LeaderboardPeriod) => void;
-	fetchLeaderboard: (period: LeaderboardPeriod) => Promise<void>;
+interface SlotCallState {
+	slotCalls: SlotCall[];
+	isSubmitting: boolean;
+	addSlotCall: (
+		slotName: string
+	) => Promise<{ success: boolean; error?: string }>;
+	submitBonusCall: (
+		id: string,
+		slotName: string
+	) => Promise<{ success: boolean; error?: string }>;
+	updateSlotStatus: (
+		id: string,
+		status: SlotCallStatus,
+		x250Hit?: boolean
+	) => Promise<{ success: boolean; error?: string }>;
+	deleteSlotCall: (id: string) => Promise<{ success: boolean; error?: string }>;
+	fetchSlotCalls: () => Promise<void>;
 }
 
-const API_URL = "https://moneylife1kdata.onrender.com/api/affiliates";
+export const useSlotCallStore = create<SlotCallState>((set, get) => ({
+	slotCalls: [],
+	isSubmitting: false,
 
-const getDateRange = (
-	period: LeaderboardPeriod
-): { start_at: string; end_at: string } => {
-	const now = new Date();
+	addSlotCall: async (slotName) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
 
-	if (period === "biweekly") {
-		const firstStart = new Date("2025-07-20T00:00:00Z");
-		const msInDay = 1000 * 60 * 60 * 24;
-		const daysSinceStart = Math.floor(
-			(now.getTime() - firstStart.getTime()) / msInDay
-		);
-		const currentCycle = Math.floor(daysSinceStart / 14);
+		set({ isSubmitting: true });
+		try {
+			const res = await fetch(
+				"https://moneylife1kdata.onrender.com/api/slot-calls",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ name: slotName }),
+					credentials: "include",
+				}
+			);
 
-		const startDate = new Date(firstStart);
-		startDate.setDate(firstStart.getDate() + currentCycle * 14);
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to add slot call");
+			}
 
-		const endDate = new Date(startDate);
-		endDate.setDate(startDate.getDate() + 13);
+			const response = await res.json();
+			const newCall = response.slotCall;
 
-		return {
-			start_at: startDate.toISOString().split("T")[0],
-			end_at: endDate.toISOString().split("T")[0],
-		};
-	}
+			set((state) => ({
+				slotCalls: [
+					{
+						id: newCall._id,
+						slotName: newCall.name,
+						requester: useAuthStore.getState().user?.kickUsername || "You",
+						timestamp: new Date(newCall.createdAt).toLocaleString(),
+						status: newCall.status,
+						x250Hit: newCall.x250Hit,
+						bonusCall: newCall.bonusCall,
+					},
+					...state.slotCalls,
+				],
+				isSubmitting: false,
+			}));
 
-	if (period === "monthly") {
-		const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-		const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-		return {
-			start_at: startDate.toISOString().split("T")[0],
-			end_at: endDate.toISOString().split("T")[0],
-		};
-	}
+			return { success: true };
+		} catch (error: any) {
+			set({ isSubmitting: false });
+			return { success: false, error: error.message };
+		}
+	},
 
-	const endDate = new Date(now);
-	const startDate = new Date(now);
-	startDate.setDate(now.getDate() - 7);
-	startDate.setHours(0, 0, 0, 0);
-
-	return {
-		start_at: startDate.toISOString().split("T")[0],
-		end_at: endDate.toISOString().split("T")[0],
-	};
-};
-
-const processApiData = (data: any): LeaderboardPlayer[] => {
-	if (!data?.affiliates || !Array.isArray(data.affiliates)) {
-		console.error("Invalid API response structure");
-		return [];
-	}
-
-	return data.affiliates
-		.filter((item: any) => item && item.username)
-		.map((item: any, index: number) => ({
-			rank: index + 1,
-			username: item.username,
-			wager: parseFloat(item.wagered_amount) || 0,
-			isFeatured: item.username.toLowerCase().includes("5moking"),
-		}))
-		.sort((a, b) => b.wager - a.wager)
-		.map((player, idx) => ({ ...player, rank: idx + 1 }));
-};
-
-export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
-	weeklyLeaderboard: [],
-	biweeklyLeaderboard: [],
-	monthlyLeaderboard: [],
-	period: "biweekly",
-	isLoading: false,
-	error: null,
-	setPeriod: (period) => set({ period }),
-	fetchLeaderboard: async (period) => {
-		set({ isLoading: true, error: null });
+	submitBonusCall: async (id, slotName) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
 
 		try {
-			const { start_at, end_at } = getDateRange(period);
-			const response = await fetch(
-				`${API_URL}?start_at=${start_at}&end_at=${end_at}`
+			const res = await fetch(
+				`https://moneylife1kdata.onrender.com/api/slot-calls/${id}/bonus-call`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ name: slotName }),
+					credentials: "include",
+				}
 			);
-			if (!response.ok) throw new Error("API request failed");
 
-			const data = await response.json();
-			const processedData = processApiData(data);
-
-			if (period === "weekly") {
-				set({ weeklyLeaderboard: processedData });
-			} else if (period === "biweekly") {
-				set({ biweeklyLeaderboard: processedData });
-			} else if (period === "monthly") {
-				set({ monthlyLeaderboard: processedData });
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to submit bonus call");
 			}
+
+			const updated = (await res.json()).slotCall;
+			set((state) => ({
+				slotCalls: state.slotCalls.map((call) =>
+					call.id === id ? { ...call, bonusCall: updated.bonusCall } : call
+				),
+			}));
+			return { success: true };
 		} catch (error: any) {
-			set({
-				error: error?.message || "Unknown error",
+			return { success: false, error: error.message };
+		}
+	},
+
+	updateSlotStatus: async (id, status, x250Hit = false) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://moneylife1kdata.onrender.com/api/slot-calls/${id}/status`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ status, x250Hit }),
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to update slot call status");
+			}
+
+			const updated = (await res.json()).slotCall;
+
+			set((state) => ({
+				slotCalls: state.slotCalls.map((call) =>
+					call.id === id
+						? {
+								...call,
+								status: updated.status,
+								x250Hit: updated.x250Hit,
+						  }
+						: call
+				),
+			}));
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
+		}
+	},
+
+	deleteSlotCall: async (id) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://moneylife1kdata.onrender.com/api/slot-calls/${id}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to delete slot call");
+			}
+
+			// Refresh list after deletion
+			await get().fetchSlotCalls();
+
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
+		}
+	},
+
+	fetchSlotCalls: async () => {
+		const token = useAuthStore.getState().token;
+		const userRole = useAuthStore.getState().user?.role;
+		if (!token) return;
+
+		const url =
+			userRole === "admin"
+				? "https://moneylife1kdata.onrender.com/api/slot-calls"
+				: "https://moneylife1kdata.onrender.com/api/slot-calls/my";
+
+		try {
+			const res = await fetch(url, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				credentials: "include",
 			});
-		} finally {
-			set({ isLoading: false });
+
+			if (!res.ok) throw new Error("Failed to fetch slot calls");
+
+			const data = await res.json();
+
+			const mapped = data.map((item: any) => ({
+				id: item._id,
+				slotName: item.name,
+				requester:
+					item.user?.kickUsername ||
+					useAuthStore.getState().user?.kickUsername ||
+					"You",
+				timestamp: new Date(item.createdAt).toLocaleString(),
+				status: item.status,
+				x250Hit: item.x250Hit,
+				bonusCall: item.bonusCall,
+			}));
+
+			set({ slotCalls: mapped });
+		} catch (error) {
+			console.error("Error fetching slot calls:", error);
 		}
 	},
 }));
-
-export const getCurrentBiweeklyRange = (): {
-	start_at: string;
-	end_at: string;
-} => {
-	const now = new Date();
-	const firstStart = new Date("2025-07-20T00:00:00Z");
-	const msInDay = 1000 * 60 * 60 * 24;
-	const daysSinceStart = Math.floor(
-		(now.getTime() - firstStart.getTime()) / msInDay
-	);
-	const currentCycle = Math.floor(daysSinceStart / 14);
-
-	const startDate = new Date(firstStart);
-	startDate.setDate(firstStart.getDate() + currentCycle * 14);
-
-	const endDate = new Date(startDate);
-	endDate.setDate(startDate.getDate() + 13);
-
-	return {
-		start_at: startDate.toISOString().split("T")[0],
-		end_at: endDate.toISOString().split("T")[0],
-	};
-};
-
-export const getCurrentMonthlyRange = (): {
-	start_at: string;
-	end_at: string;
-} => {
-	const now = new Date();
-	const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-	const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-	return {
-		start_at: startDate.toISOString().split("T")[0],
-		end_at: endDate.toISOString().split("T")[0],
-	};
-};
