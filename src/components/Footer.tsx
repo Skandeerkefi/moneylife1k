@@ -77,7 +77,7 @@ export function Footer() {
 								X
 							</a>
 							<a
-								href='discord.gg/49aCsAvsBn'
+								href='https://discord.com/invite/49aCsAvsBn'
 								target='_blank'
 								rel='noreferrer'
 								className='w-9 h-9 rounded-full flex items-center justify-center bg-[#38BDF8] hover:bg-[#CF9F86] transition-colors'
@@ -93,7 +93,7 @@ export function Footer() {
 								I
 							</a>
 							<a
-								href='youtube.com/@MONEYLIFE1K'
+								href='https://www.youtube.com/@MONEYLIFE1K'
 								target='_blank'
 								rel='noreferrer'
 								className='w-9 h-9 rounded-full flex items-center justify-center bg-[#ff4a26] hover:bg-[#38BDF8] transition-colors'
