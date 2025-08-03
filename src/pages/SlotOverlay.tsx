@@ -11,10 +11,10 @@ export default function SlotOverlay() {
 		const fetchOverlayCalls = async () => {
 			try {
 				const res = await fetch(
-					"https://pnpplxprssdata.onrender.com/api/slot-calls",
+					"https://moneylife1kdata.onrender.com/api/slot-calls",
 					{
 						headers: {
-							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODdiMjlkNjgwYWE1MzZmOTdiYjI1NCIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6IlBucHBsWHByc3MiLCJpYXQiOjE3NTM3NTA1OTEsImV4cCI6MTc1NDM1NTM5MX0.X3_40SkuhaOEXZzC-YAFMrRCCs0PcwFmDDLYhx2Kaic`,
+							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGJkMTg2MjQyNGJjNjllZGJmZGM4YSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InNrYW5kZXIiLCJpYXQiOjE3NTQyMTkzMzMsImV4cCI6MTc1NDgyNDEzM30.CA8_sJmY-W8uUEQ_-m3GRoo_CWFRWaPYtjoK5oy5jjI`,
 						},
 					}
 				);
