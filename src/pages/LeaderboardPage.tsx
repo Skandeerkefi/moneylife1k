@@ -231,7 +231,7 @@ function RewardCard({
 						<p className='font-medium'>{player.username}</p>
 						<p className='text-[#38BDF8]'>${player.wager.toLocaleString()}</p>
 						<a
-							href='https://discord.gg/3eVUWD4BtF'
+							href='https://discord.gg/49aCsAvsBn'
 							target='_blank'
 							rel='noreferrer'
 							className='w-full mt-4'
