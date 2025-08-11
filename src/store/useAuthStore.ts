@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		try {
 			const res = await fetch(
 				// "https://pnpplxprssdata.onrender.com/api/auth/register",
-				"https://moneylife1kdata.onrender.com/api/auth/register",
+				"https://moneylife1kdata-gs76.onrender.com/api/auth/register",
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
