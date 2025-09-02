@@ -25,7 +25,7 @@ interface LeaderboardTableProps {
 
 // Prize mapping for monthly leaderboard (adjust as needed)
 const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
-	monthly: { 1: 300, 2: 125, 3: 75 },
+	monthly: { 1: 250, 2: 100, 3: 75, 4: 45, 5: 30 },
 };
 
 export function LeaderboardTable({ period, data }: LeaderboardTableProps) {

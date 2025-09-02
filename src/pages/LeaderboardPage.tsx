@@ -107,7 +107,7 @@ function LeaderboardPage() {
 					<div className='flex items-center gap-4'>
 						<div className='px-3 py-1.5 rounded-md bg-[#38BDF8]/10 flex items-center'>
 							<span className='text-[#CF9F86]'>Affiliate Code:</span>
-							<span className='ml-2 font-bold text-[#38BDF8]'>MONEYLIFE1K</span>
+							<span className='ml-2 font-bold text-[#38BDF8]'>MONEYLIFE</span>
 						</div>
 					</div>
 				</div>
