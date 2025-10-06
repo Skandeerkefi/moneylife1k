@@ -24,7 +24,9 @@ export const useShockStore = create<ShockState>((set) => ({
 		set({ loading: true, error: null });
 
 		try {
-			const res = await fetch("http://localhost:3000/api/shock/referrals");
+			const res = await fetch(
+				"https://moneylife1kdata-production.up.railway.app/api/shock/referrals"
+			);
 			if (!res.ok) throw new Error("Failed to fetch Shock referrals");
 
 			const data = await res.json();
