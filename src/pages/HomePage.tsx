@@ -2,33 +2,28 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { Link } from "react-router-dom";
 import { Dices, Crown, Gift, Users, ArrowRight } from "lucide-react";
-import { useLeaderboardStore } from "@/store/useLeaderboardStore";
-import { useSlotCallStore } from "@/store/useSlotCallStore";
-import { useGiveawayStore } from "@/store/useGiveawayStore";
+import { useShockStore } from "@/store/shockStore";
 
-function HomePage() {
-	const { slotCalls } = useSlotCallStore();
-	const { giveaways } = useGiveawayStore();
-	const { monthlyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
+export default function HomePage() {
+	const { referrals, fetchReferrals, loading, error } = useShockStore();
 
-	const topLeaderboard = Array.isArray(monthlyLeaderboard)
-		? monthlyLeaderboard.slice(0, 5)
-		: [];
+	useEffect(() => {
+		fetchReferrals();
+	}, [fetchReferrals]);
 
-	// Calculate current month end date string for countdown
+	// Top 5 Shock leaderboard
+	const topLeaderboard = Array.isArray(referrals) ? referrals.slice(0, 5) : [];
+
+	// Prize mapping for top 5
+	const prizes = [250, 125, 100, 70, 55];
+
+	// Countdown to end of the month
 	const now = new Date();
 	const monthEndDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 	monthEndDate.setHours(23, 59, 59, 999);
 	const monthEndISO = monthEndDate.toISOString();
-
-	useEffect(() => {
-		if (monthlyLeaderboard.length === 0) {
-			fetchLeaderboard();
-		}
-	}, []);
 
 	const [timeLeft, setTimeLeft] = useState("");
 
@@ -76,7 +71,6 @@ function HomePage() {
 								"url(https://images.unsplash.com/photo-1614585507279-e3dda7937fdf?w=1200&h=600&fit=crop)",
 						}}
 					/>
-
 					<div className='container relative z-20 px-4 py-20 text-center md:py-28'>
 						<h1 className='mb-4 text-4xl md:text-6xl font-bold text-[#38BDF8]'>
 							Welcome to MONEYLIFE1K's
@@ -87,7 +81,7 @@ function HomePage() {
 						<p className='mb-8 text-lg text-white md:text-xl'>
 							Join the community for exciting gambling streams, giveaways, slot
 							calls, and leaderboard competitions with affiliate code{" "}
-							<span className='font-bold text-[#38BDF8]'>MONEYLIFE</span>
+							<span className='font-bold text-[#38BDF8]'>MONEYLIFE1K</span>
 						</p>
 
 						<div className='flex flex-col justify-center gap-4 sm:flex-row'>
@@ -111,11 +105,11 @@ function HomePage() {
 								asChild
 							>
 								<a
-									href='https://rainbet.com/?r=MONEYLIFE'
+									href='https://shock.com/?r=moneylife1k'
 									target='_blank'
 									rel='noreferrer'
 								>
-									Join Rainbet with Code: MONEYLIFE
+									Join Shock with Code: MONEYLIFE1K
 								</a>
 							</Button>
 						</div>
@@ -126,7 +120,7 @@ function HomePage() {
 				<section className='flex justify-center py-12'>
 					<div className='text-center border border-[#CF9F86] rounded-lg px-6 py-6 bg-[#1E2547] shadow-md inline-flex flex-col items-center'>
 						<h2 className='text-xl font-semibold text-[#CF9F86] mb-4'>
-							⏳ Leaderboard Ends In
+							⏳ Shock Leaderboard Ends In
 						</h2>
 						<p className='font-mono text-3xl text-[#38BDF8] tracking-widest select-none'>
 							{timeLeft}
@@ -137,13 +131,13 @@ function HomePage() {
 					</div>
 				</section>
 
-				{/* Leaderboard Section */}
+				{/* Top 5 Shock Leaderboard */}
 				<section className='container py-16'>
 					<div className='flex items-center justify-between mb-8'>
 						<div className='flex items-center gap-2'>
 							<Crown className='w-6 h-6 text-[#38BDF8]' />
 							<h2 className='text-2xl font-bold text-[#38BDF8]'>
-								Monthly Leaderboard
+								Shock Leaderboard
 							</h2>
 						</div>
 						<Button
@@ -158,10 +152,58 @@ function HomePage() {
 						</Button>
 					</div>
 
-					<LeaderboardTable period='monthly' data={topLeaderboard} />
+					<div className='overflow-x-auto'>
+						<table className='w-full overflow-hidden border border-gray-600 rounded-lg'>
+							<thead className='bg-[#1F2349] text-gray-200'>
+								<tr>
+									<th className='px-4 py-2 text-left'>#</th>
+									<th className='px-4 py-2 text-left'>Username</th>
+									<th className='px-4 py-2 text-left'>wagerAmount</th>
+									<th className='px-4 py-2 text-left'>Prize</th>
+								</tr>
+							</thead>
+							<tbody>
+								{loading && (
+									<tr>
+										<td colSpan={4} className='py-4 text-center text-gray-300'>
+											Loading...
+										</td>
+									</tr>
+								)}
+								{!loading &&
+									!error &&
+									topLeaderboard.map((ref, index) => (
+										<tr
+											key={index}
+											className={`${
+												index % 2 === 0 ? "bg-[#1A1D3D]" : "bg-[#21254F]"
+											} hover:bg-[#292E63] transition-colors`}
+										>
+											<td className='px-4 py-2'>{index + 1}</td>
+											<td className='px-4 py-2 font-semibold'>
+												{ref.username || "N/A"}
+											</td>
+											<td className='px-4 py-2 text-blue-400'>
+												${ref.wagerAmount}
+											</td>
+											<td className='px-4 py-2 font-semibold text-yellow-400'>
+												{index < 5 ? `$${prizes[index]}` : "-"}
+											</td>
+										</tr>
+									))}
+								{!loading && error && (
+									<tr>
+										<td colSpan={4} className='py-4 text-center text-red-400'>
+											❌ {error}
+										</td>
+									</tr>
+								)}
+							</tbody>
+						</table>
+					</div>
 				</section>
 
-				{/* Features */}
+				{/* Features Section */}
 				<section className='bg-[#161A34] border-y border-[#38BDF8]/20 py-16'>
 					<div className='container text-center'>
 						<h2 className='text-2xl font-bold text-[#38BDF8] mb-12'>
@@ -171,7 +213,7 @@ function HomePage() {
 							<FeatureCard
 								icon={<Dices className='w-8 h-8 text-[#CF9F86]' />}
 								title='Exciting Gambling Streams'
-								description='Watch thrilling slot sessions, casino games, and big win moments with MONEYLIFE1K on Rainbet.'
+								description='Watch thrilling slot sessions, casino games, and big win moments with MONEYLIFE1K on Shock.'
 							/>
 							<FeatureCard
 								icon={<Users className='w-8 h-8 text-[#CF9F86]' />}
@@ -208,5 +250,3 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 		</div>
 	);
 }
-
-export default HomePage;

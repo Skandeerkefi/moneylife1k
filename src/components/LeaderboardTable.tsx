@@ -14,7 +14,7 @@ type LeaderboardPeriod = "monthly";
 interface LeaderboardPlayer {
 	rank: number;
 	username: string;
-	wager: number;
+	wagerAmount: number;
 	isFeatured?: boolean;
 }
 
@@ -23,16 +23,16 @@ interface LeaderboardTableProps {
 	data: LeaderboardPlayer[] | undefined;
 }
 
-// Prize mapping for monthly leaderboard (adjust as needed)
+// Prize mapping for Shock monthly leaderboard
 const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
-	monthly: { 1: 250, 2: 100, 3: 75, 4: 45, 5: 30 },
+	monthly: { 1: 250, 2: 125, 3: 100, 4: 70, 5: 55 },
 };
 
 export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 	if (!data || data.length === 0) {
 		return (
 			<div className='text-center py-10 text-[#38BDF8]'>
-				No leaderboard data available for {period}.
+				No Shock leaderboard data available for {period}.
 			</div>
 		);
 	}
@@ -40,13 +40,15 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 	return (
 		<div className='overflow-hidden border rounded-lg border-[#FFFFFF]/20'>
 			<Table>
-				<TableHeader className='bg-[#161A34]/90'>
+				<TableHeader className='bg-[#1A1D3D]'>
 					<TableRow>
 						<TableHead className='w-12 text-center text-[#CF9F86]'>
 							Rank
 						</TableHead>
 						<TableHead className='text-[#FFFFFF]'>Player</TableHead>
-						<TableHead className='text-right text-[#FFFFFF]'>Wager</TableHead>
+						<TableHead className='text-right text-[#FFFFFF]'>
+							wagerAmount
+						</TableHead>
 						<TableHead className='text-right text-[#38BDF8]'>Prize</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -88,7 +90,7 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 									)}
 								</TableCell>
 								<TableCell className='text-right text-[#FFFFFF]'>
-									${player.wager.toLocaleString()}
+									${player.wagerAmount.toLocaleString()}
 								</TableCell>
 								<TableCell className='text-right text-[#CF9F86]'>
 									{prize > 0 ? `$${prize}` : "-"}

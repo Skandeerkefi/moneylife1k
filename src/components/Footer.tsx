@@ -15,8 +15,8 @@ export function Footer() {
 						<p className='text-sm text-[#545F7D]'>
 							Join MONEYLIFE1K&apos;s community for exciting gambling streams,
 							giveaways, and more. Use affiliate code{" "}
-							<span className='font-semibold text-[#CF9F86]'>MONEYLIFE</span> on
-							Rainbet.
+							<span className='font-semibold text-[#CF9F86]'>MONEYLIFE1K</span>{" "}
+							on Rainbet.
 						</p>
 					</div>
 
