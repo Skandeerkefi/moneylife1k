@@ -16,7 +16,7 @@ export function Footer() {
 							Join MONEYLIFE1K&apos;s community for exciting gambling streams,
 							giveaways, and more. Use affiliate code{" "}
 							<span className='font-semibold text-[#CF9F86]'>MONEYLIFE1K</span>{" "}
-							on Rainbet.
+							on Shock.
 						</p>
 					</div>
 
