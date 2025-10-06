@@ -146,7 +146,7 @@ export default function HomePage() {
 							className='border-[#38BDF8] text-[#38BDF8] hover:bg-[#38BDF8] hover:text-white'
 							asChild
 						>
-							<Link to='/leaderboard' className='flex items-center gap-1'>
+							<Link to='/shk' className='flex items-center gap-1'>
 								View Full Leaderboard <ArrowRight className='w-4 h-4' />
 							</Link>
 						</Button>
