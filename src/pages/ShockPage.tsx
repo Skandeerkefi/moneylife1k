@@ -10,8 +10,19 @@ export default function ShockPage() {
 		fetchReferrals();
 	}, [fetchReferrals]);
 
-	// Define prize amounts
 	const prizes = [250, 125, 100, 70, 55];
+
+	// ✅ Safe number formatter (handles string or undefined)
+	const formatWager = (amount: any) => {
+		const num = parseFloat(amount);
+		if (isNaN(num) || num <= 0) return "$0";
+		return `$${num.toFixed(3)}`;
+	};
+
+	// ✅ Sort descending safely
+	const sortedReferrals = [...referrals].sort(
+		(a, b) => parseFloat(b.wagerAmount || 0) - parseFloat(a.wagerAmount || 0)
+	);
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#161A34] text-white'>
@@ -40,12 +51,11 @@ export default function ShockPage() {
 									<th className='px-4 py-2 text-left'>#</th>
 									<th className='px-4 py-2 text-left'>Username</th>
 									<th className='px-4 py-2 text-left'>wagerAmount</th>
-									<th className='px-4 py-2 text-left'>Prize</th>{" "}
-									{/* ✅ added */}
+									<th className='px-4 py-2 text-left'>Prize</th>
 								</tr>
 							</thead>
 							<tbody>
-								{referrals.map((ref, index) => (
+								{sortedReferrals.map((ref, index) => (
 									<tr
 										key={index}
 										className={`${
@@ -57,10 +67,10 @@ export default function ShockPage() {
 											{ref.username || "N/A"}
 										</td>
 										<td className='px-4 py-2 text-blue-400'>
-											${ref.wagerAmount}
+											{formatWager(ref.wagerAmount)}
 										</td>
 										<td className='px-4 py-2 font-semibold text-yellow-400'>
-											{index < 5 ? `$${prizes[index]}` : "-"}
+											{index < prizes.length ? `$${prizes[index]}` : "-"}
 										</td>
 									</tr>
 								))}

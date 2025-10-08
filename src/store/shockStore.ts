@@ -4,7 +4,7 @@ interface ShockReferral {
 	username: string;
 	totalReferrals: number;
 	earnings: number;
-	wagerAmount: number; // ✅ added
+	wagerAmount: number;
 	[key: string]: any;
 }
 
@@ -30,7 +30,16 @@ export const useShockStore = create<ShockState>((set) => ({
 			if (!res.ok) throw new Error("Failed to fetch Shock referrals");
 
 			const data = await res.json();
-			set({ referrals: data, loading: false });
+
+			// ✅ Clean and normalize data
+			const normalized = data.map((item: any) => ({
+				...item,
+				wagerAmount: parseFloat(item.wagerAmount || 0),
+				totalReferrals: parseInt(item.totalReferrals || 0),
+				earnings: parseFloat(item.earnings || 0),
+			}));
+
+			set({ referrals: normalized, loading: false });
 		} catch (err: any) {
 			console.error("Shock Fetch Error:", err);
 			set({ error: err.message, loading: false });
